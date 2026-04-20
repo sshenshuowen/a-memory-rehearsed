@@ -26,10 +26,16 @@ export default function MonitorView({ baseUrl }: { baseUrl: string }) {
   const [folders, setFolders] = useState<PlayFolder[]>([]);
   const [activeFolder, setActiveFolder] = useState<PlayFolder | null>(null);
   const [hiddenTextIds, setHiddenTextIds] = useState<Set<string>>(new Set());
+  const [originUrl, setOriginUrl] = useState<string>(baseUrl);
 
-  // Use window.location.origin if available to ensure robust local network resolution
-  const originUrl = typeof window !== "undefined" ? window.location.origin : baseUrl;
   const uploadUrl = `${originUrl}/upload`;
+
+  // Safely mount client origin so SSR doesn't use the hardcoded local IP from .env
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOriginUrl(window.location.origin);
+    }
+  }, []);
 
   const toggleText = (id: string) => {
     setHiddenTextIds((prev) => {
